@@ -42,6 +42,7 @@ class Viewer(object):
         os.makedirs(self._rgb_dir)
         self._file_count = len(os.listdir(self._rgb_dir))
         self._lock = RLock()
+        self._status = False
 
     def _start(self):
         self._thread_ = Thread(target=self._update, args=())
