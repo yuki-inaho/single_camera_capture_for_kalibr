@@ -21,20 +21,22 @@ def get_date():
 
 
 class Viewer(object):
-    def __init__(self, camera_id, dir_name, image_width, image_height, fps):
+    def __init__(self, camera_id, dir_name, image_width, image_height, fps, mjpg_capturing_mode):
         self._rgb_img = None
         self._stopped = False
 
         self._rgb_dir = os.path.join(dir_name, "cam0")
-        self._setting(camera_id, image_width, image_height, fps)
+        self._setting(camera_id, image_width, image_height, fps, mjpg_capturing_mode)
 
-    def _setting(self, camera_id, image_width, image_height, fps):
+    def _setting(self, camera_id, image_width, image_height, fps, mjpg_capturing_mode):
         if camera_id == '':
             self._cam = cv2.VideoCapture(0)
         elif camera_id.isdigit():
             self._cam = cv2.VideoCapture(int(camera_id))
         else:
             self._cam = cv2.VideoCapture(camera_id)
+        if mjpg_capturing_mode:
+            self._cam.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*"MJPG"))
         self._cam.set(cv2.CAP_PROP_FPS, fps)
         self._cam.set(cv2.CAP_PROP_FRAME_WIDTH, image_width)
         self._cam.set(cv2.CAP_PROP_FRAME_HEIGHT, image_height)
@@ -98,7 +100,8 @@ class Viewer(object):
 @click.option('--image-width', '-w', default=1920)
 @click.option('--image-height', '-h', default=1080)
 @click.option('--fps', '-f', default=30)
-def main(save_dir, camera_id, image_width, image_height, fps):
+@click.option('--mjpg-capturing-mode', '-m', is_flag=True)
+def main(save_dir, camera_id, image_width, image_height, fps, mjpg_capturing_mode):
     if not os.path.exists(save_dir):
         os.mkdir(save_dir)
 
@@ -113,7 +116,8 @@ def main(save_dir, camera_id, image_width, image_height, fps):
                     dir_name,
                     image_width=image_width,
                     image_height=image_height,
-                    fps=fps)
+                    fps=fps,
+                    mjpg_capturing_mode=mjpg_capturing_mode)
     viewer.run()
 
 
